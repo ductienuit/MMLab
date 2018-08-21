@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include layout="@layout/toolbar" />
+
+    <com.astuetz.PagerSlidingTabStrip
+        android:id="@+id/tabs"
+        android:layout_width="match_parent"
+        android:background="#009CDE"
+        android:layout_height="?attr/actionBarSize"
+        />
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+        <android.support.v4.view.ViewPager
+            android:id="@+id/pager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:context="vn.edu.uit.mmlab.MMLabActivity" />
+
+        <Button
+            android:id="@+id/angry_btn"
+            android:layout_width="173dp"
+            android:layout_height="51dp"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="7dp"
+            android:text="@string/face_detection"
+            android:textColor="#FFFF"
+            android:textSize="13sp"
+            android:background="@drawable/one_button"
+            />
+    </RelativeLayout>
+</LinearLayout>
