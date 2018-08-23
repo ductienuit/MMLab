@@ -1,9 +1,12 @@
 <resources>
-    <string name="app_name">Multimedia Communications Laboratory</string>
+    <string name="mmlab_uit">Multimedia Communications Laboratory</string>
     <string name="contact">About</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="test">Dựa trên cuốn truyện tranh ăn khách của Maki Miyoshi, bộ phim hài lãng mạn của Nhật Bản này kể về câu chuyện tình yêu của Kako, một nữ sinh 16 tuổi và Kota, một anh chàng cảnh sát trưởng thành. Bộ phim tâm lý hài hước của Alfonso Goméz-Rejón. Alfonso Goméz-Rejón đã chuyển thể bộ Phim từ tiểu thuyết cùng tên có cốt truyện xoay quanh một cậu thiếu niên học điện ảnh bất đắc dĩ phải làm bạn với cô gái mắc ung thư giai đoạn cuối và khát khao được tiếp tục sống của nhân vật chính.</string>
     <string name="face_detection">Face Detection</string>
+    <string name="app_name">MMLab</string>
+    <string name="send">Send</string>
+    <string name="cancel">Cancel</string>
 </resources>

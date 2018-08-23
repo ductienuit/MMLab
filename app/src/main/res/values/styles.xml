@@ -1,3 +1,6 @@
 <resources>
-
+    <style name="PrimaryButton" parent="Theme.AppCompat">
+        <item name="colorButtonNormal">@color/colorBlue</item>
+        <item name="colorControlHighlight">@color/colorRed</item>
+    </style>
 </resources>
