@@ -2,20 +2,17 @@ package vn.edu.uit.mmlab;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.net.Uri;
 import android.provider.MediaStore;
-import android.support.constraint.solver.widgets.Rectangle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.Toast;
+
+import com.google.gson.Gson;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -26,7 +23,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import vn.edu.uit.mmlab.ViewCustom.DrawImageView;
-import vn.edu.uit.mmlab.modal.FaceResult;
+import vn.edu.uit.mmlab.modal.PostResult;
+import vn.edu.uit.mmlab.modal.RecognitionResult;
 import vn.edu.uit.mmlab.modal.UploadSuccess;
 import vn.edu.uit.mmlab.network.ApiUtils;
 import vn.edu.uit.mmlab.network.MMLabAPI;
@@ -36,10 +34,10 @@ public class ConfirmActivity extends AppCompatActivity {
     private int algorithm;
 
     private final int FACE_DETECTION = 0;
-    private final int FACE_RECOGNITION = 2;
-    private final int IMAGE_SEARCH = 3;
-    private final int OBJECT_DETECTION = 4;
-    private final int PERSONAL_ATTRIBUTE = 5;
+    private final int FACE_RECOGNITION = 1;
+    private final int IMAGE_SEARCH = 2;
+    private final int OBJECT_DETECTION = 3;
+    private final int PERSONAL_ATTRIBUTE = 4;
 
     String check;
     Bitmap yourPicture;
@@ -49,7 +47,8 @@ public class ConfirmActivity extends AppCompatActivity {
 
     MMLabAPI mAPI;
     UploadSuccess uploadSuccess;
-    FaceResult faceResult;
+    PostResult postResult;
+    RecognitionResult recognitionResult;
 
     android.app.AlertDialog uploadingProgress;
 
@@ -66,7 +65,7 @@ public class ConfirmActivity extends AppCompatActivity {
         getData();
 
         uploadSuccess = new UploadSuccess();
-        faceResult = new FaceResult();
+        postResult = new PostResult();
 
         mAPI = ApiUtils.getAPIService();
 
@@ -95,7 +94,7 @@ public class ConfirmActivity extends AppCompatActivity {
 
         String path = bundle.getString("uriImage", "");
 
-        algorithm = bundle.getInt("algorithm",FACE_DETECTION);
+        algorithm = bundle.getInt("algorithm", FACE_DETECTION);
 
         imgComfirm.mUri = Uri.parse(path);
         imgComfirm.setImageURI(imgComfirm.mUri);
@@ -163,6 +162,8 @@ public class ConfirmActivity extends AppCompatActivity {
                 } else {
                     Log.i("POST", uploadSuccess.getFileID());
                     Toast.makeText(ConfirmActivity.this, "Upload sucessfull", Toast.LENGTH_SHORT).show();
+
+                    //After we sent image to sever, we choose algorithm
                     chooseAlgorithm();
                 }
             }
@@ -177,58 +178,104 @@ public class ConfirmActivity extends AppCompatActivity {
     }
 
     private void chooseAlgorithm() {
-        switch (algorithm)
-        {
-            case FACE_DETECTION:{
+        switch (algorithm) {
+            case FACE_DETECTION: {
                 getFaceDetection();
                 break;
             }
-            case FACE_RECOGNITION:{
+            case FACE_RECOGNITION: {
                 getFaceDetection();
                 break;
             }
-            case IMAGE_SEARCH:{
+            case IMAGE_SEARCH: {
                 //TODO
                 break;
             }
-            case OBJECT_DETECTION:{
+            case OBJECT_DETECTION: {
                 //TODO
                 break;
             }
-            case PERSONAL_ATTRIBUTE:{
+            case PERSONAL_ATTRIBUTE: {
                 //TODO
                 break;
+            }
+            default: {
+                Toast.makeText(this, "Hello man", Toast.LENGTH_SHORT).show();
             }
         }
-
-
-
     }
 
     /**
      * After post string image, we GET id image in sever and GET json face location in this picture
      */
     private void getFaceDetection() {
-        mAPI.getFaceDectection("out.jpg", uploadSuccess.getFileID(), "model1").enqueue(new Callback<FaceResult>() {
+        mAPI.getFaceDectection("out.jpg", uploadSuccess.getFileID(), "model1").enqueue(new Callback<PostResult>() {
             @Override
-            public void onResponse(Call<FaceResult> call, Response<FaceResult> response) {
-                faceResult = response.body();
+            public void onResponse(Call<PostResult> call, Response<PostResult> response) {
+                postResult = response.body();
 
-                uploadingProgress.dismiss();
-                if (faceResult != null) {
-                    imgComfirm.listRec = faceResult.toListRectangle();
+                if (postResult != null) {
+                    if (algorithm == FACE_RECOGNITION) {
+                        Gson g = new Gson();
+                        String option = "{%22range%22:" + g.toJson(postResult.getFaceInfor()) + ",%22folder%22:%22%22}";
+                        Log.i("object", option);
 
-                    imgComfirm.invalidate();
+                        imgComfirm.listRec = postResult.toListRectangle();
+                        imgComfirm.invalidate();
 
-                    Toast.makeText(ConfirmActivity.this, "Success", Toast.LENGTH_SHORT).show();
+                        //face_recognition
+                        getFaceRecognition(option);
+                    } else {
+                        imgComfirm.listRec = postResult.toListRectangle();
+
+                        imgComfirm.invalidate();
+
+                        uploadingProgress.dismiss();
+                        btnSend.setEnabled(true);
+                        Toast.makeText(ConfirmActivity.this, "Detection Success", Toast.LENGTH_SHORT).show();
+                    }
                 } else {
+                    uploadingProgress.dismiss();
+                    btnSend.setEnabled(true);
                     notifyFailure("Something wrong with your internet");
                 }
-                btnSend.setEnabled(true);
             }
 
             @Override
-            public void onFailure(Call<FaceResult> call, Throwable t) {
+            public void onFailure(Call<PostResult> call, Throwable t) {
+                uploadingProgress.dismiss();
+                notifyFailure("Something wrong with your internet");
+                btnSend.setEnabled(true);
+            }
+        });
+    }
+
+    /**
+     * We must getFaceDetection before getFaceRecognition, because range list
+     */
+    private void getFaceRecognition(String option) {
+        mAPI.getFaceRecognition("out.jpg", uploadSuccess.getFileID(), "modelface1", option).enqueue(new Callback<RecognitionResult>() {
+            @Override
+            public void onResponse(Call<RecognitionResult> call, Response<RecognitionResult> response) {
+                recognitionResult = response.body();
+                uploadingProgress.dismiss();
+                btnSend.setEnabled(true);
+
+                if (postResult != null) {
+                    //imgComfirm.listRec = postResult.toListRectangle();
+
+                    //imgComfirm.invalidate();
+
+                    Toast.makeText(ConfirmActivity.this, "Recognition Success", Toast.LENGTH_SHORT).show();
+                } else {
+                    notifyFailure("Something wrong with your internet");
+                    btnSend.setEnabled(true);
+                    notifyFailure("Something wrong with your internet");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<RecognitionResult> call, Throwable t) {
                 uploadingProgress.dismiss();
                 notifyFailure("Something wrong with your internet");
                 btnSend.setEnabled(true);
