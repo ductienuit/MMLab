@@ -192,6 +192,7 @@ public class MMLabActivity extends AppCompatActivity {
                     Bundle bundle = new Bundle();
                     bundle.putString("imageFrom","local");
                     bundle.putString("uriImage",uri.toString());
+                    bundle.putInt("algorithm",pager.getCurrentItem());
                     intent.putExtra("data",bundle);
                     startActivity(intent);
                 }
