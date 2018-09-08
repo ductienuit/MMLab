@@ -33,4 +33,10 @@ dependencies {
     compile 'com.jpardogo.materialtabstrip:library:1.1.1'
     compile 'com.android.support:cardview-v7:27.1.1'
     compile 'com.github.f0ris.sweetalert:library:1.5.1'
+
+    compile 'com.squareup.retrofit2:retrofit:2.3.0'
+    compile 'com.squareup.retrofit2:converter-gson:2.3.0'
+
+    //Progress when upload file
+    implementation 'com.github.d-max:spots-dialog:1.1@aar'
 }

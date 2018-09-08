@@ -1,27 +1,21 @@
 package vn.edu.uit.mmlab.modal;
 
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
-
-import java.util.ArrayList;
-import java.util.List;
-
-public class FaceResult
+public class UploadSuccess
 {
-    private FaceInfor[] range;
+    private String fileID;
 
     private String fileName;
 
     private String msg;
 
-    public FaceInfor[] getFaceInfor ()
+    public String getFileID ()
     {
-        return range;
+        return fileID;
     }
 
-    public void setFaceInfor (FaceInfor[] faceInfor)
+    public void setFileID (String fileID)
     {
-        this.range = faceInfor;
+        this.fileID = fileID;
     }
 
     public String getFileName ()
@@ -47,8 +41,6 @@ public class FaceResult
     @Override
     public String toString()
     {
-        return "FaceResult [faceInfor = "+range+", fileName = "+fileName+", msg = "+msg+"]";
+        return "ClassPojo [fileID = "+fileID+", fileName = "+fileName+", msg = "+msg+"]";
     }
 }
-
-
